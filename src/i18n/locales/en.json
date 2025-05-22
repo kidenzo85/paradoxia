@@ -1,0 +1,52 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "close": "Close"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "continueWith": "Continue with {{provider}}",
+    "magicLink": "Magic link",
+    "sendMagicLink": "Send magic link",
+    "logout": "Logout"
+  },
+  "nav": {
+    "discover": "Discover",
+    "categories": "Categories",
+    "about": "About",
+    "profile": "My profile",
+    "admin": "Admin Panel",
+    "menu": "Menu",
+    "language": "Language"
+  },
+  "categories": {
+    "bio": "Forbidden Biology",
+    "phys": "Phantom Physics",
+    "mem": "Matter Memory",
+    "arch": "Forbidden Archaeology",
+    "tech": "Lost Technologies",
+    "eco": "Paradoxical Ecology",
+    "med": "Extreme Medicine",
+    "soc": "Cryptic Societies",
+    "dream": "Predatory Dreams",
+    "geo": "Cursed Geography",
+    "ghost": "Ghost Professions",
+    "food": "Alien Food",
+    "pleasure": "Forbidden Science of Pleasure",
+    "mystery": "Mysteries & Social Taboos"
+  },
+  "facts": {
+    "swipeLeft": "Swipe left to skip",
+    "swipeRight": "Swipe right to save",
+    "tapForMore": "Tap for more",
+    "source": "Source",
+    "contestedTheory": "Contested Theory",
+    "wtfScore": "WTF Score",
+    "comments": "Comments",
+    "share": "Share"
+  }
+}

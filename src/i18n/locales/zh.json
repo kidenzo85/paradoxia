@@ -1,0 +1,52 @@
+{
+  "common": {
+    "loading": "加载中...",
+    "error": "发生错误",
+    "close": "关闭"
+  },
+  "auth": {
+    "signIn": "登录",
+    "signUp": "注册",
+    "email": "电子邮箱",
+    "password": "密码",
+    "continueWith": "使用{{provider}}继续",
+    "magicLink": "魔法链接",
+    "sendMagicLink": "发送魔法链接",
+    "logout": "退出登录"
+  },
+  "nav": {
+    "discover": "发现",
+    "categories": "分类",
+    "about": "关于",
+    "profile": "我的主页",
+    "admin": "管理面板",
+    "menu": "菜单",
+    "language": "语言"
+  },
+  "categories": {
+    "bio": "禁忌生物学",
+    "phys": "幽灵物理学",
+    "mem": "物质记忆",
+    "arch": "禁忌考古学",
+    "tech": "失落科技",
+    "eco": "悖论生态学",
+    "med": "极限医学",
+    "soc": "神秘社会",
+    "dream": "捕食者之梦",
+    "geo": "诅咒地理",
+    "ghost": "幽灵职业",
+    "food": "异星食物",
+    "pleasure": "禁忌快感科学",
+    "mystery": "神秘与禁忌"
+  },
+  "facts": {
+    "swipeLeft": "向左滑动跳过",
+    "swipeRight": "向右滑动保存",
+    "tapForMore": "点击查看更多",
+    "source": "来源",
+    "contestedTheory": "争议理论",
+    "wtfScore": "震惊指数",
+    "comments": "评论",
+    "share": "分享"
+  }
+}

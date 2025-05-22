@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Auto-index for facts collection queries
+    match /facts {
+      allow list: if
+        request.query.orderBy['approvedAt'] != null &&
+        request.query.where['status'] == 'approved';
+    }
+    // Existing rules for comments
+    match /comments/{commentId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Existing rules for users
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // New rule for admins collection
+    match /admins/{adminId} {
+      allow read, write: if request.auth != null && request.auth.token.email == 'fabricewilliam73@gmail.com';
+    }
+    
+    // Modified rules for facts collection
+    match /facts/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null && 
+                   (request.auth.token.email == 'fabricewilliam73@gmail.com' || 
+                    exists(/databases/$(database)/documents/admins/$(request.auth.uid)));
+    }
+    
+    // Restricted collections
+    match /api_keys/{document=**} {
+      allow read, write: if request.auth != null && request.auth.token.email == 'fabricewilliam73@gmail.com';
+    }
+    
+    match /stats/{document=**} {
+      allow read, write: if request.auth != null && request.auth.token.email == 'fabricewilliam73@gmail.com';
+    }
+  }
+}
