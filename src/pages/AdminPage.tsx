@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Settings, Database, PlusCircle, BarChart3, LayoutDashboard } from 'lucide-react';
+import { Settings, Database, PlusCircle, BarChart3, LayoutDashboard, Clock } from 'lucide-react';
 import FactCreation from '../components/admin/FactCreation';
 import FactModeration from '../components/admin/FactModeration';
 import ApiSettings from '../components/admin/ApiSettings';
 import AdManagement from '../components/admin/AdManagement';
+import AutoGeneration from '../components/admin/AutoGeneration';
 import Dashboard from '../components/admin/Dashboard';
 import { useAuth } from '../context/AuthContext';
 
@@ -83,6 +84,18 @@ const AdminPage: React.FC = () => {
             </Link>
             
             <Link
+              to="/admin/auto-generation"
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                isActive('/auto-generation') 
+                  ? 'bg-purple-900/50 text-purple-300' 
+                  : 'text-gray-300 hover:bg-gray-800'
+              }`}
+            >
+              <Clock size={18} />
+              <span>Génération Auto</span>
+            </Link>
+            
+            <Link
               to="/admin/ads"
               className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                 isActive('/ads') 
@@ -114,6 +127,7 @@ const AdminPage: React.FC = () => {
             <Route path="/" element={<Dashboard />} />
             <Route path="/creation" element={<FactCreation />} />
             <Route path="/moderation" element={<FactModeration />} />
+            <Route path="/auto-generation" element={<AutoGeneration />} />
             <Route path="/ads" element={<AdManagement />} />
             <Route path="/settings" element={<ApiSettings />} />
           </Routes>
