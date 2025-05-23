@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Switch, AlertCircle, CheckCircle } from 'lucide-react';
+import { Twitch as Switch, AlertCircle, CheckCircle } from 'lucide-react';
 import { 
   getFirestore,
   collection,
