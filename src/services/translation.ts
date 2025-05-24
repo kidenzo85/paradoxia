@@ -21,7 +21,7 @@ export interface Translation {
   contestedTheory: string;
 }
 
-export type Language = 'fr' | 'en' | 'zh';
+export type Language = 'fr' | 'en' | 'zh' | 'ar' | 'es';
 
 export async function translateText(text: string, targetLang: Language): Promise<string | null> {
   try {

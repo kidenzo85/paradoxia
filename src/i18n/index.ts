@@ -4,12 +4,16 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import en from './locales/en.json';
 import fr from './locales/fr.json';
 import zh from './locales/zh.json';
+import ar from './locales/ar.json';
+import es from './locales/es.json';
 
 // Available languages
 export const languages = {
   en: { name: 'English', nativeName: 'English' },
   fr: { name: 'French', nativeName: 'Français' },
-  zh: { name: 'Chinese', nativeName: '中文' }
+  zh: { name: 'Chinese', nativeName: '中文' },
+  ar: { name: 'Arabic', nativeName: 'العربية' },
+  es: { name: 'Spanish', nativeName: 'Español' }
 };
 
 i18n
@@ -19,10 +23,12 @@ i18n
     resources: {
       en: { translation: en },
       fr: { translation: fr },
-      zh: { translation: zh }
+      zh: { translation: zh },
+      ar: { translation: ar },
+      es: { translation: es }
     },
-    fallbackLng: 'en',
-    supportedLngs: ['en', 'fr', 'zh'],
+    fallbackLng: 'fr',
+    supportedLngs: ['en', 'fr', 'zh', 'ar', 'es'],
     interpolation: {
       escapeValue: false
     },
