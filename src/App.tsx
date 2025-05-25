@@ -1,12 +1,11 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { FactProvider } from './context/FactContext';
 import HomePage from './pages/HomePage';
 import DetailPage from './pages/DetailPage';
 import AdminPage from './pages/AdminPage';
 import ProfilePage from './pages/ProfilePage';
-import LoginPage from './pages/LoginPage';
 import CategoriesPage from './pages/CategoriesPage';
 import AboutPage from './pages/AboutPage';
 import Header from './components/common/Header';
@@ -24,7 +23,6 @@ function App() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/fact/:id" element={<DetailPage />} />
-                <Route path="/login" element={<LoginPage />} />
                 <Route path="/categories" element={<CategoriesPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route 
@@ -43,6 +41,8 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
+                {/* Remove the login page and redirect to home */}
+                <Route path="/login" element={<Navigate to="/" replace />} />
               </Routes>
             </main>
             <AuthModalContainer />
