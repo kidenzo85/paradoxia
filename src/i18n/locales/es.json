@@ -1,0 +1,52 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Se produjo un error",
+    "close": "Cerrar"
+  },
+  "auth": {
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "continueWith": "Continuar con {{provider}}",
+    "magicLink": "Enlace mágico",
+    "sendMagicLink": "Enviar enlace mágico",
+    "logout": "Cerrar sesión"
+  },
+  "nav": {
+    "discover": "Descubrir",
+    "categories": "Categorías",
+    "about": "Acerca de",
+    "profile": "Mi perfil",
+    "admin": "Panel de administración",
+    "menu": "Menú",
+    "language": "Idioma"
+  },
+  "categories": {
+    "bio": "Biología Prohibida",
+    "phys": "Física Fantasma",
+    "mem": "Memoria de la Materia",
+    "arch": "Arqueología Prohibida",
+    "tech": "Tecnologías Perdidas",
+    "eco": "Ecología Paradójica",
+    "med": "Medicina Extrema",
+    "soc": "Sociedades Crípticas",
+    "dream": "Sueños Depredadores",
+    "geo": "Geografía Maldita",
+    "ghost": "Profesiones Fantasma",
+    "food": "Comida Alienígena",
+    "pleasure": "Ciencia Prohibida del Placer",
+    "mystery": "Misterios y Tabúes Sociales"
+  },
+  "facts": {
+    "swipeLeft": "Desliza a la izquierda para saltar",
+    "swipeRight": "Desliza a la derecha para guardar",
+    "tapForMore": "Toca para más información",
+    "source": "Fuente",
+    "contestedTheory": "Teoría controvertida",
+    "wtfScore": "Puntuación WTF",
+    "comments": "Comentarios",
+    "share": "Compartir"
+  }
+}
