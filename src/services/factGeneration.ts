@@ -1,4 +1,4 @@
-import { getFirestore, collection, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, doc, getDoc, query, where, getDocs } from 'firebase/firestore';
 import { Fact } from '../context/FactContext';
 import { Language, Translation } from './translation';
 
@@ -19,6 +19,63 @@ async function getApiKey(keyId: string): Promise<string | null> {
     console.error(`Error fetching ${keyId} API key:`, error);
     return null;
   }
+}
+
+// Function to check for duplicate facts
+async function isDuplicate(fact: GeneratedFact): Promise<boolean> {
+  try {
+    const factsRef = collection(db, 'facts');
+    
+    // Check for exact title match
+    const titleQuery = query(factsRef, where('title', '==', fact.title));
+    const titleDocs = await getDocs(titleQuery);
+    if (!titleDocs.empty) return true;
+
+    // Check for similar content using a similarity threshold
+    const contentQuery = query(factsRef);
+    const contentDocs = await getDocs(contentQuery);
+    
+    for (const doc of contentDocs.docs) {
+      const existingFact = doc.data();
+      const similarity = calculateSimilarity(fact.content, existingFact.content);
+      if (similarity > 0.8) { // 80% similarity threshold
+        return true;
+      }
+    }
+
+    return false;
+  } catch (error) {
+    console.error('Error checking for duplicates:', error);
+    return false;
+  }
+}
+
+// Calculate text similarity using Levenshtein distance
+function calculateSimilarity(text1: string, text2: string): number {
+  const longer = text1.length > text2.length ? text1 : text2;
+  const shorter = text1.length > text2.length ? text2 : text1;
+  
+  if (longer.length === 0) return 1.0;
+  
+  const costs = new Array();
+  for (let i = 0; i <= longer.length; i++) {
+    let lastValue = i;
+    for (let j = 0; j <= shorter.length; j++) {
+      if (i === 0) {
+        costs[j] = j;
+      } else if (j > 0) {
+        let newValue = costs[j - 1];
+        if (longer.charAt(i - 1) !== shorter.charAt(j - 1)) {
+          newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+        }
+        costs[j - 1] = lastValue;
+        lastValue = newValue;
+      }
+    }
+    if (i > 0) costs[shorter.length] = lastValue;
+  }
+  
+  return (longer.length - costs[shorter.length]) / longer.length;
 }
 
 const MAX_RETRIES = 3;
