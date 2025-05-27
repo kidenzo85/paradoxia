@@ -231,6 +231,10 @@ export async function generateFact(prompt: string): Promise<GeneratedFact | null
         // First try direct parse
         const directData = JSON.parse(rawResponse);
         if (validateFactData(directData)) {
+          // Check for duplicates before returning
+          if (await isDuplicate(directData)) {
+            throw new Error('Generated fact is too similar to existing facts');
+          }
           console.log('Successfully parsed direct response');
           return directData;
         }
@@ -244,6 +248,10 @@ export async function generateFact(prompt: string): Promise<GeneratedFact | null
       
       const cleanedData = JSON.parse(cleaned);
       if (validateFactData(cleanedData)) {
+        // Check for duplicates before returning
+        if (await isDuplicate(cleanedData)) {
+          throw new Error('Generated fact is too similar to existing facts');
+        }
         console.log('Successfully parsed cleaned response');
         return cleanedData;
       }
