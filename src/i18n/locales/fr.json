@@ -2,7 +2,8 @@
   "common": {
     "loading": "Chargement...",
     "error": "Une erreur est survenue",
-    "close": "Fermer"
+    "close": "Fermer",
+    "noFactsAvailable": "Aucun fait disponible pour le moment"
   },
   "auth": {
     "signIn": "Se connecter",
@@ -37,7 +38,10 @@
     "ghost": "Métiers Fantômes",
     "food": "Nourriture Alien",
     "pleasure": "Science Interdite du Plaisir",
-    "mystery": "Mystères & Tabous Sociaux"
+    "mystery": "Mystères & Tabous Sociaux",
+    "description": "Explorez notre collection de faits insolites classés par domaines. Chaque catégorie ouvre une porte vers des découvertes scientifiques qui défient l'entendement.",
+    "explore": "Explorer",
+    "title": "Catégories"
   },
   "facts": {
     "swipeLeft": "Swiper à gauche pour passer",
@@ -47,6 +51,20 @@
     "contestedTheory": "Théorie contestée",
     "wtfScore": "Score WTF",
     "comments": "Commentaires",
-    "share": "Partager"
+    "share": "Partager",
+    "back": "Retour",
+    "copy": "Copier",
+    "shareTitle": "Partager ce fait",
+    "shareText": "Découvrez ce fait insolite",
+    "similarFacts": "Faits similaires",
+    "advertisement": "Publicité",
+    "adSpace": "Espace publicitaire"
+  },
+  "home": {
+    "searchPlaceholder": "Rechercher des faits insolites...",
+    "filterByCategory": "Filtrer par catégorie",
+    "noResults": "Aucun résultat trouvé",
+    "welcomeTitle": "Bienvenue sur Paradoxia",
+    "welcomeDescription": "Découvrez des faits scientifiques insolites et inexplicables"
   }
 }

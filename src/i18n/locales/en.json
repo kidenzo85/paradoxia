@@ -2,7 +2,8 @@
   "common": {
     "loading": "Loading...",
     "error": "An error occurred",
-    "close": "Close"
+    "close": "Close",
+    "noFactsAvailable": "No facts available at the moment"
   },
   "auth": {
     "signIn": "Sign in",
@@ -37,7 +38,10 @@
     "ghost": "Ghost Professions",
     "food": "Alien Food",
     "pleasure": "Forbidden Science of Pleasure",
-    "mystery": "Mysteries & Social Taboos"
+    "mystery": "Mysteries & Social Taboos",
+    "description": "Explore our collection of unusual facts classified by domain. Each category opens a door to scientific discoveries that defy understanding.",
+    "explore": "Explore",
+    "title": "Categories"
   },
   "facts": {
     "swipeLeft": "Swipe left to skip",
@@ -47,6 +51,20 @@
     "contestedTheory": "Contested Theory",
     "wtfScore": "WTF Score",
     "comments": "Comments",
-    "share": "Share"
+    "share": "Share",
+    "back": "Back",
+    "copy": "Copy",
+    "shareTitle": "Share this fact",
+    "shareText": "Check out this unusual fact",
+    "similarFacts": "Similar Facts",
+    "advertisement": "Advertisement",
+    "adSpace": "Advertisement Space"
+  },
+  "home": {
+    "searchPlaceholder": "Search for unusual facts...",
+    "filterByCategory": "Filter by category",
+    "noResults": "No results found",
+    "welcomeTitle": "Welcome to Paradoxia",
+    "welcomeDescription": "Discover unusual and inexplicable scientific facts"
   }
 }

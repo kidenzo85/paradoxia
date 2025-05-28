@@ -7,23 +7,7 @@ import Loading from '../components/common/Loading';
 import RealityChallenge from '../components/game/RealityChallenge';
 import { MessageSquare, Share2, ChevronLeft, ChevronRight } from 'lucide-react';
 import SocialShareModal from '../components/social/SocialShareModal';
-
-const categories = [
-  { id: 'bio', name: 'Biologie Interdite', emoji: '🧬' },
-  { id: 'phys', name: 'Physique Fantôme', emoji: '⚛️' },
-  { id: 'mem', name: 'Mémoire de la Matière', emoji: '💫' },
-  { id: 'arch', name: 'Archéologie Interdite', emoji: '🏺' },
-  { id: 'tech', name: 'Technologies Perdues', emoji: '⚙️' },
-  { id: 'eco', name: 'Écologie Paradoxale', emoji: '🌳' },
-  { id: 'med', name: 'Médecine Extrême', emoji: '🧪' },
-  { id: 'soc', name: 'Sociétés Cryptiques', emoji: '👥' },
-  { id: 'dream', name: 'Rêves Prédateurs', emoji: '🌙' },
-  { id: 'geo', name: 'Géographie Maudite', emoji: '🗺️' },
-  { id: 'ghost', name: 'Métiers Fantômes', emoji: '👻' },
-  { id: 'food', name: 'Nourriture Alien', emoji: '🍽️' },
-  { id: 'pleasure', name: 'Science Interdite du Plaisir', emoji: '🎭' },
-  { id: 'mystery', name: 'Mystères & Taboos Sociaux', emoji: '🔍' },
-];
+import { useTranslation } from 'react-i18next';
 
 const HomePage: React.FC = () => {
   const { facts, loading } = useFacts();
@@ -34,26 +18,7 @@ const HomePage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-
-  // Logs détaillés pour le débogage
-  useEffect(() => {
-    console.log('HomePage facts update:', {
-      count: facts.length,
-      firstFact: facts[0]?.id,
-      lastFact: facts[facts.length - 1]?.id,
-      approvedFacts: facts.filter(f => f.status === 'approved').length,
-      loading
-    });
-    
-    if (facts.length > 0) {
-      console.log('Sample fact details:', {
-        id: facts[0].id,
-        status: facts[0].status,
-        approvedAt: facts[0].approvedAt,
-        category: facts[0].category
-      });
-    }
-  }, [facts, loading]);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (factsSeen === 5) {
@@ -93,6 +58,23 @@ const HomePage: React.FC = () => {
       carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     }
   };
+
+  const categories = [
+    { id: 'bio', name: t('categories.bio'), emoji: '🧬' },
+    { id: 'phys', name: t('categories.phys'), emoji: '⚛️' },
+    { id: 'mem', name: t('categories.mem'), emoji: '💫' },
+    { id: 'arch', name: t('categories.arch'), emoji: '🏺' },
+    { id: 'tech', name: t('categories.tech'), emoji: '⚙️' },
+    { id: 'eco', name: t('categories.eco'), emoji: '🌳' },
+    { id: 'med', name: t('categories.med'), emoji: '🧪' },
+    { id: 'soc', name: t('categories.soc'), emoji: '👥' },
+    { id: 'dream', name: t('categories.dream'), emoji: '🌙' },
+    { id: 'geo', name: t('categories.geo'), emoji: '🗺️' },
+    { id: 'ghost', name: t('categories.ghost'), emoji: '👻' },
+    { id: 'food', name: t('categories.food'), emoji: '🍽️' },
+    { id: 'pleasure', name: t('categories.pleasure'), emoji: '🎭' },
+    { id: 'mystery', name: t('categories.mystery'), emoji: '🔍' }
+  ];
 
   const CategoryCarousel = () => (
     <div className="relative mb-6">
@@ -149,7 +131,7 @@ const HomePage: React.FC = () => {
         <RealityChallenge onClose={() => setShowChallenge(false)} />
       ) : (
         <>
-          <h1 className="sr-only">Paradoxia</h1>
+          <h1 className="sr-only">{t('home.welcomeTitle')}</h1>
           
           <CategoryCarousel />
           
@@ -161,7 +143,7 @@ const HomePage: React.FC = () => {
           <div className="relative h-[70vh]">
             {facts.filter(f => f.status === 'approved').length === 0 ? (
               <div className="flex items-center justify-center h-full">
-                <p className="text-xl text-gray-400">Aucun fait approuvé disponible</p>
+                <p className="text-xl text-gray-400">{t('common.noFactsAvailable')}</p>
               </div>
             ) : (
               <SwipeableCards
@@ -178,7 +160,7 @@ const HomePage: React.FC = () => {
                         handleOpenComments(fact);
                       }}
                       className="bg-purple-900/50 backdrop-blur-sm p-2 rounded-full hover:bg-purple-800/70 transition-colors"
-                      aria-label="Commenter"
+                      aria-label={t('facts.comments')}
                     >
                       <MessageSquare size={20} />
                     </button>
@@ -188,7 +170,7 @@ const HomePage: React.FC = () => {
                         handleShare(fact);
                       }}
                       className="bg-purple-900/50 backdrop-blur-sm p-2 rounded-full hover:bg-purple-800/70 transition-colors"
-                      aria-label="Partager"
+                      aria-label={t('facts.share')}
                     >
                       <Share2 size={20} />
                     </button>

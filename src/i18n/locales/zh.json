@@ -2,7 +2,8 @@
   "common": {
     "loading": "加载中...",
     "error": "发生错误",
-    "close": "关闭"
+    "close": "关闭",
+    "noFactsAvailable": "暂时没有可用的事实"
   },
   "auth": {
     "signIn": "登录",
@@ -37,7 +38,10 @@
     "ghost": "幽灵职业",
     "food": "异星食物",
     "pleasure": "禁忌快感科学",
-    "mystery": "神秘与禁忌"
+    "mystery": "神秘与禁忌",
+    "description": "探索我们按领域分类的不寻常事实集合。每个类别都打开了一扇通向挑战理解的科学发现之门。",
+    "explore": "探索",
+    "title": "分类"
   },
   "facts": {
     "swipeLeft": "向左滑动跳过",
@@ -47,6 +51,20 @@
     "contestedTheory": "争议理论",
     "wtfScore": "震惊指数",
     "comments": "评论",
-    "share": "分享"
+    "share": "分享",
+    "back": "返回",
+    "copy": "复制",
+    "shareTitle": "分享这个事实",
+    "shareText": "看看这个不寻常的事实",
+    "similarFacts": "相似事实",
+    "advertisement": "广告",
+    "adSpace": "广告位"
+  },
+  "home": {
+    "searchPlaceholder": "搜索不寻常的事实...",
+    "filterByCategory": "按类别筛选",
+    "noResults": "未找到结果",
+    "welcomeTitle": "欢迎来到 Paradoxia",
+    "welcomeDescription": "发现不寻常和难以解释的科学事实"
   }
 }
