@@ -1,86 +1,141 @@
-const CACHE_NAME = 'savoirs-insolites-v1';
-const urlsToCache = [
-  './index.html',
-  './manifest.json',
-  './favicon.ico',
-  './assets'
+const CACHE_NAME = 'paradoxia-v1';
+const STATIC_ASSETS = [
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/favicon.ico',
+  '/pwa-64x64.png',
+  '/pwa-192x192.png',
+  '/pwa-512x512.png',
+  '/maskable-icon-512x512.png'
 ];
+
+const CACHE_STRATEGIES = {
+  CACHE_FIRST: 'cache-first',
+  NETWORK_FIRST: 'network-first'
+};
+
+const ROUTE_STRATEGIES = new Map([
+  [/^https:\/\/images\.pexels\.com\/.*/, CACHE_STRATEGIES.CACHE_FIRST],
+  [/^https:\/\/api\.deepseek\.com\/.*/, CACHE_STRATEGIES.NETWORK_FIRST]
+]);
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        // Cache each URL individually to handle failures gracefully
-        const cachePromises = urlsToCache.map(url => {
-          // Attempt to cache each resource, but don't fail if one fails
-          return cache.add(url).catch(error => {
-            console.warn(`Failed to cache ${url}:`, error);
-            return Promise.resolve(); // Continue despite error
-          });
-        });
-        return Promise.all(cachePromises);
-      })
-  );
-});
-
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        if (response) {
-          return response;
-        }
-        
-        // Clone the request because it can only be used once
-        const fetchRequest = event.request.clone();
-
-        return fetch(fetchRequest)
-          .then(response => {
-            // Check if response is valid
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            // Clone the response because it can only be used once
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
-              })
-              .catch(error => {
-                console.warn('Cache put failed:', error);
-              });
-
-            return response;
-          })
-          .catch(() => {
-            // Return a fallback response if fetch fails
-            return new Response('Network error occurred', {
-              status: 503,
-              statusText: 'Service Unavailable'
-            });
-          });
-      })
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.addAll(STATIC_ASSETS);
+      await self.skipWaiting();
+    })()
   );
 });
 
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
-    caches.keys()
-      .then(cacheNames => {
-        return Promise.all(
-          cacheNames.map(cacheName => {
-            if (cacheWhitelist.indexOf(cacheName) === -1) {
-              return caches.delete(cacheName);
-            }
-            return Promise.resolve();
-          })
-        );
-      })
-      .catch(error => {
-        console.warn('Cache cleanup failed:', error);
-      })
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      );
+      await self.clients.claim();
+    })()
+  );
+});
+
+async function cacheFirst(request) {
+  const cachedResponse = await caches.match(request);
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    return new Response('Network error occurred', {
+      status: 503,
+      statusText: 'Service Unavailable'
+    });
+  }
+}
+
+async function networkFirst(request) {
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    return new Response('Network error occurred', {
+      status: 503,
+      statusText: 'Service Unavailable'
+    });
+  }
+}
+
+self.addEventListener('fetch', (event) => {
+  const strategy = Array.from(ROUTE_STRATEGIES.entries()).find(([pattern]) => 
+    pattern.test(event.request.url)
+  )?.[1];
+
+  if (strategy === CACHE_STRATEGIES.CACHE_FIRST) {
+    event.respondWith(cacheFirst(event.request));
+  } else if (strategy === CACHE_STRATEGIES.NETWORK_FIRST) {
+    event.respondWith(networkFirst(event.request));
+  } else {
+    event.respondWith(
+      (async () => {
+        try {
+          const response = await fetch(event.request);
+          if (response.ok && (response.type === 'basic' || event.request.url.includes('api'))) {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(event.request, response.clone());
+          }
+          return response;
+        } catch (error) {
+          const cachedResponse = await caches.match(event.request);
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          return new Response('Network error occurred', {
+            status: 503,
+            statusText: 'Service Unavailable'
+          });
+        }
+      })()
+    );
+  }
+});
+
+self.addEventListener('push', (event) => {
+  const options = {
+    body: event.data.text(),
+    icon: '/pwa-192x192.png',
+    badge: '/pwa-64x64.png',
+    vibrate: [100, 50, 100]
+  };
+
+  event.waitUntil(
+    self.registration.showNotification('Paradoxia', options)
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    clients.openWindow('/')
   );
 });
