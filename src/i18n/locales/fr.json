@@ -25,6 +25,7 @@
     "language": "Langue"
   },
   "categories": {
+    "all": "Toutes les catégories",
     "bio": "Biologie Interdite",
     "phys": "Physique Fantôme",
     "mem": "Mémoire de la Matière",

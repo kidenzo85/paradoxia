@@ -5,7 +5,7 @@ import SwipeableCards, { CardItem } from '../components/cards/SwipeableCards';
 import { useFacts, Fact } from '../context/FactContext';
 import Loading from '../components/common/Loading';
 import RealityChallenge from '../components/game/RealityChallenge';
-import { MessageSquare, Share2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MessageSquare, Share2, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import SocialShareModal from '../components/social/SocialShareModal';
 import { useTranslation } from 'react-i18next';
 
@@ -60,6 +60,7 @@ const HomePage: React.FC = () => {
   };
 
   const categories = [
+    { id: 'all', name: t('categories.all'), emoji: '✨' },
     { id: 'bio', name: t('categories.bio'), emoji: '🧬' },
     { id: 'phys', name: t('categories.phys'), emoji: '⚛️' },
     { id: 'mem', name: t('categories.mem'), emoji: '💫' },
@@ -99,7 +100,7 @@ const HomePage: React.FC = () => {
             key={category.id}
             onClick={() => setSelectedCategory(category.id === selectedCategory ? null : category.id)}
             className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
-              category.id === selectedCategory
+              (category.id === selectedCategory || (category.id === 'all' && !selectedCategory))
                 ? 'bg-purple-900/70 text-white'
                 : 'bg-gray-900/50 text-gray-300 hover:bg-gray-800/70'
             }`}
@@ -125,6 +126,10 @@ const HomePage: React.FC = () => {
     return <Loading />;
   }
 
+  const filteredFacts = selectedCategory && selectedCategory !== 'all'
+    ? facts.filter(fact => fact.status === 'approved' && fact.category.toLowerCase().includes(selectedCategory))
+    : facts.filter(fact => fact.status === 'approved');
+
   return (
     <div className="max-w-md mx-auto pb-20 pt-24 px-4">
       {showChallenge ? (
@@ -141,15 +146,13 @@ const HomePage: React.FC = () => {
           </div>
 
           <div className="relative h-[70vh]">
-            {facts.filter(f => f.status === 'approved').length === 0 ? (
+            {filteredFacts.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <p className="text-xl text-gray-400">{t('common.noFactsAvailable')}</p>
               </div>
             ) : (
               <SwipeableCards
-                items={selectedCategory
-                  ? facts.filter(fact => fact.status === 'approved' && fact.category.toLowerCase().includes(selectedCategory))
-                  : facts.filter(fact => fact.status === 'approved')}
+                items={filteredFacts}
                 onSwipe={handleSwipe}
                 onClick={handleCardClick}
                 renderActions={(fact) => (
