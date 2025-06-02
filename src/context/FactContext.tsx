@@ -46,97 +46,58 @@ export const FactProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { i18n } = useTranslation();
 
   const getLocalizedFact = (fact: Fact) => {
-    const currentLanguage = i18n.language as Language;
-    if (currentLanguage === 'fr' || !fact.translations || !fact.translations[currentLanguage]) {
-      return {
-        title: fact.title,
-        content: fact.content,
-        contestedTheory: fact.contestedTheory
-      };
+    const currentLanguage = i18n.language.split('-')[0] as Language;
+    
+    // If the fact has translations and the current language is not French
+    if (fact.translations && currentLanguage !== 'fr') {
+      const translation = fact.translations[currentLanguage];
+      if (translation) {
+        return {
+          title: translation.title,
+          content: translation.content,
+          contestedTheory: translation.contestedTheory
+        };
+      }
     }
 
-    const translation = fact.translations[currentLanguage];
+    // Default to French content if no translation is available
     return {
-      title: translation.title,
-      content: translation.content,
-      contestedTheory: translation.contestedTheory
+      title: fact.title,
+      content: fact.content,
+      contestedTheory: fact.contestedTheory
     };
   };
   
   useEffect(() => {
     console.log('Initializing FactContext subscription...');
     const factsRef = collection(db, 'facts');
-    // Simplifier la requête pour récupérer tous les faits approuvés
-    // Récupérer d'abord tous les faits pour debug
-    const allFactsQuery = query(factsRef);
-    
-    console.log('Initializing debug query to check all facts...');
-    
-    const debugUnsubscribe = onSnapshot(allFactsQuery, (snapshot) => {
-      console.log('DEBUG - All facts in collection:', snapshot.size);
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        console.log('DEBUG - Fact:', {
-          id: doc.id,
-          status: data.status,
-          approvedAt: data.approvedAt?.toDate(),
-          title: data.title
-        });
-      });
-    });
-    
-    // Requête principale pour les faits approuvés
     const approvedFactsQuery = query(
       factsRef,
       where('status', '==', 'approved'),
       orderBy('approvedAt', 'desc')
     );
 
-    console.log('Subscribing to approved facts with query:', {
-      status: 'approved',
-      orderBy: 'approvedAt'
-    });
-
     const unsubscribe = onSnapshot(approvedFactsQuery, (snapshot) => {
       console.log('Received Firestore update with', snapshot.size, 'documents');
       const factsData: Fact[] = [];
+      
       snapshot.forEach((doc) => {
         const data = doc.data();
-        console.log('Processing fact:', {
-          id: doc.id,
-          status: data.status,
-          approvedAt: data.approvedAt,
-          hasApprovedAt: !!data.approvedAt
-        });
-        
-        if (!data.approvedAt) {
-          console.warn('Fact missing approvedAt field:', doc.id);
-        }
-
         factsData.push({
           id: doc.id,
           ...data,
-          approvedAt: data.approvedAt?.toDate() // Convertir le timestamp en Date
+          approvedAt: data.approvedAt?.toDate()
         } as Fact);
       });
-      console.log('Setting', factsData.length, 'approved facts with details:', {
-        firstFact: factsData[0]?.id,
-        lastFact: factsData[factsData.length - 1]?.id
-      });
+      
       setFacts(factsData);
       setLoading(false);
     }, (error) => {
-      console.error('Error in Firestore subscription:', error, {
-        errorCode: error.code,
-        errorMessage: error.message
-      });
+      console.error('Error in Firestore subscription:', error);
       setLoading(false);
     });
 
-    return () => {
-      unsubscribe();
-      debugUnsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
   
   const getFact = (id: string) => {
