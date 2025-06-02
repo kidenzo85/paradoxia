@@ -28,12 +28,12 @@ i18n
       es: { translation: es }
     },
     fallbackLng: 'fr',
-    supportedLngs: ['en', 'fr', 'zh', 'ar', 'es'],
+    supportedLngs: Object.keys(languages),
     interpolation: {
       escapeValue: false
     },
     detection: {
-      order: ['querystring', 'navigator', 'localStorage', 'htmlTag'],
+      order: ['querystring', 'localStorage', 'navigator', 'htmlTag'],
       lookupQuerystring: 'lang',
       lookupLocalStorage: 'i18nextLng',
       caches: ['localStorage'],
@@ -43,12 +43,13 @@ i18n
 
 // Utility function to change language
 export const changeLanguage = (lang: keyof typeof languages) => {
+  localStorage.setItem('i18nextLng', lang);
   return i18n.changeLanguage(lang);
 };
 
 // Get current language
 export const getCurrentLanguage = () => {
-  return i18n.language;
+  return i18n.language.split('-')[0];
 };
 
 // Get language name in native format

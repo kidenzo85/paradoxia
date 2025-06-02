@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { languages, changeLanguage, getCurrentLanguage, getLanguageName } from '../../i18n';
+import { languages, changeLanguage, getCurrentLanguage } from '../../i18n';
 
 const LanguageSwitcher: React.FC = () => {
   const { i18n } = useTranslation();
@@ -9,6 +9,8 @@ const LanguageSwitcher: React.FC = () => {
   const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newLang = event.target.value;
     changeLanguage(newLang as keyof typeof languages);
+    // Reload the page to ensure all content is properly translated
+    window.location.reload();
   };
 
   return (
