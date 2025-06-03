@@ -115,7 +115,8 @@ const SwipeableCards: React.FC<SwipeableCardsProps> = ({
         animate={controls}
         className="absolute w-full h-full cursor-grab active:cursor-grabbing"
         whileTap={{ scale: 0.98 }}
-        initial={{ scale: 0.95, opacity: 0 }}
+        initial={{ scale: 1, opacity: 1 }} // Changed from { scale: 0.95, opacity: 0 }
+        animate={{ scale: 1, opacity: 1 }} // Added explicit animate
         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       >
         {isAd(currentItem) ? (
