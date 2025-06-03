@@ -48,13 +48,15 @@ const FactCreation = (): JSX.Element => {
   const [customPrompt, setCustomPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<ResultState | null>(null);
-  const [selectedLanguages, setSelectedLanguages] = useState<Language[]>(['fr', 'en', 'zh']);
+  const [selectedLanguages, setSelectedLanguages] = useState<Language[]>(['fr', 'en', 'zh', 'ar', 'es']);
   const [autoTranslate, setAutoTranslate] = useState(true);
 
   const languages: { code: Language; name: string }[] = [
     { code: 'fr', name: 'Français' },
     { code: 'en', name: 'English' },
-    { code: 'zh', name: 'Chinese' }
+    { code: 'zh', name: '中文' },
+    { code: 'ar', name: 'العربية' },
+    { code: 'es', name: 'Español' }
   ];
   
   const handleCategoryToggle = (categoryId: string): void => {
