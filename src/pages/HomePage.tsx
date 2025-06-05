@@ -5,6 +5,7 @@ import SwipeableCards, { CardItem } from '../components/cards/SwipeableCards';
 import { useFacts, Fact } from '../context/FactContext';
 import Loading from '../components/common/Loading';
 import RealityChallenge from '../components/game/RealityChallenge';
+import OnboardingGuide from '../components/onboarding/OnboardingGuide';
 import { MessageSquare, Share2, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import SocialShareModal from '../components/social/SocialShareModal';
 import { useTranslation } from 'react-i18next';
@@ -16,9 +17,23 @@ const HomePage: React.FC = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [currentFact, setCurrentFact] = useState<Fact | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  useEffect(() => {
+    // Check if it's the user's first visit
+    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+    if (!hasSeenOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    localStorage.setItem('hasSeenOnboarding', 'true');
+  };
 
   useEffect(() => {
     if (factsSeen === 5) {
@@ -132,6 +147,10 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="max-w-md mx-auto pb-20 pt-24 px-4">
+      {showOnboarding && (
+        <OnboardingGuide onComplete={handleOnboardingComplete} />
+      )}
+      
       {showChallenge ? (
         <RealityChallenge onClose={() => setShowChallenge(false)} />
       ) : (
@@ -193,6 +212,3 @@ const HomePage: React.FC = () => {
       )}
     </div>
   );
-};
-
-export default HomePage;

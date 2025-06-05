@@ -5,6 +5,21 @@
     "close": "Fermer",
     "noFactsAvailable": "Aucun fait disponible pour le moment"
   },
+  "onboarding": {
+    "swipe": {
+      "title": "Swipez pour découvrir",
+      "description": "Faites glisser vers la gauche ou la droite pour explorer de nouveaux faits"
+    },
+    "tap": {
+      "title": "Cliquez pour plus de détails",
+      "description": "Appuyez sur un fait pour découvrir son histoire complète"
+    },
+    "share": {
+      "title": "Partagez vos découvertes",
+      "description": "Partagez les faits les plus intéressants avec vos amis"
+    },
+    "skip": "Passer"
+  },
   "auth": {
     "signIn": "Se connecter",
     "signUp": "S'inscrire",

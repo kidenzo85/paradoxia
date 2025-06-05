@@ -5,6 +5,21 @@
     "close": "关闭",
     "noFactsAvailable": "暂时没有可用的事实"
   },
+  "onboarding": {
+    "swipe": {
+      "title": "滑动探索",
+      "description": "左右滑动以探索新的事实"
+    },
+    "tap": {
+      "title": "点击了解详情",
+      "description": "点击事实卡片以查看完整故事"
+    },
+    "share": {
+      "title": "分享发现",
+      "description": "与朋友分享最有趣的事实"
+    },
+    "skip": "跳过"
+  },
   "auth": {
     "signIn": "登录",
     "signUp": "注册",
@@ -25,6 +40,7 @@
     "language": "语言"
   },
   "categories": {
+    "all": "所有类别",
     "bio": "禁忌生物学",
     "phys": "幽灵物理学",
     "mem": "物质记忆",

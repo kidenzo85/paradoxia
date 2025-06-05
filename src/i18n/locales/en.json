@@ -5,6 +5,21 @@
     "close": "Close",
     "noFactsAvailable": "No facts available at the moment"
   },
+  "onboarding": {
+    "swipe": {
+      "title": "Swipe to discover",
+      "description": "Swipe left or right to explore new facts"
+    },
+    "tap": {
+      "title": "Tap for details",
+      "description": "Tap on a fact to discover its full story"
+    },
+    "share": {
+      "title": "Share discoveries",
+      "description": "Share the most interesting facts with your friends"
+    },
+    "skip": "Skip"
+  },
   "auth": {
     "signIn": "Sign in",
     "signUp": "Sign up",
@@ -25,6 +40,7 @@
     "language": "Language"
   },
   "categories": {
+    "all": "All categories",
     "bio": "Forbidden Biology",
     "phys": "Phantom Physics",
     "mem": "Matter Memory",
