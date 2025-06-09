@@ -3,6 +3,7 @@ import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestor
 import { Language, Translation } from '../services/translation';
 import { useTranslation } from 'react-i18next';
 import { db } from '../lib/firebase';
+import FirebaseOptimizer from '../services/optimization';
 
 export interface Fact {
   id: string;
@@ -80,7 +81,14 @@ export const FactProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
   
   useEffect(() => {
-    console.log('Initializing FactContext subscription...');
+    console.log('Initializing optimized FactContext subscription...');
+    
+    // Précharger les données les plus courantes
+    FirebaseOptimizer.preloadData('facts', [
+      where('status', '==', 'approved'),
+      orderBy('approvedAt', 'desc')
+    ]);
+
     const factsRef = collection(db, 'facts');
     const approvedFactsQuery = query(
       factsRef,
@@ -89,7 +97,7 @@ export const FactProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 
     const unsubscribe = onSnapshot(approvedFactsQuery, (snapshot) => {
-      console.log('Received Firestore update with', snapshot.size, 'documents');
+      console.log('Received optimized Firestore update with', snapshot.size, 'documents');
       const factsData: Fact[] = [];
       
       snapshot.forEach((doc) => {
@@ -106,12 +114,27 @@ export const FactProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       setFacts(shuffledFacts);
       setLoading(false);
+
+      // Mettre en cache les faits pour 5 minutes
+      FirebaseOptimizer.setCache('approved_facts', shuffledFacts, 5 * 60 * 1000);
     }, (error) => {
       console.error('Error in Firestore subscription:', error);
+      
+      // Essayer de récupérer depuis le cache en cas d'erreur
+      const cachedFacts = FirebaseOptimizer.getCache('approved_facts');
+      if (cachedFacts) {
+        console.log('Using cached facts due to error');
+        setFacts(cachedFacts);
+      }
+      
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      // Nettoyer le cache spécifique à ce composant
+      FirebaseOptimizer.clearCache();
+    };
   }, []);
   
   const getFact = (id: string) => {
