@@ -28,6 +28,7 @@ interface FactContextType {
     content: string;
     contestedTheory: string;
   };
+  getFactsByCategory: (category: string) => Fact[];
 }
 
 const FactContext = createContext<FactContextType | undefined>(undefined);
@@ -48,7 +49,7 @@ export const FactProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const getLocalizedFact = (fact: Fact) => {
     const currentLanguage = i18n.language.split('-')[0] as Language;
     
-    // If the fact has translations and the current language is not French
+    // Si le fait a des traductions et que la langue actuelle n'est pas le français
     if (fact.translations && currentLanguage !== 'fr') {
       const translation = fact.translations[currentLanguage];
       if (translation) {
@@ -60,12 +61,22 @@ export const FactProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    // Default to French content if no translation is available
+    // Par défaut, retourner le contenu français si aucune traduction n'est disponible
     return {
       title: fact.title,
       content: fact.content,
       contestedTheory: fact.contestedTheory
     };
+  };
+
+  const getFactsByCategory = (category: string): Fact[] => {
+    if (category === 'all' || !category) {
+      return facts;
+    }
+    return facts.filter(fact => 
+      fact.category.toLowerCase().includes(category.toLowerCase()) ||
+      fact.category === category
+    );
   };
   
   useEffect(() => {
@@ -90,7 +101,10 @@ export const FactProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } as Fact);
       });
       
-      setFacts(factsData);
+      // Mélanger les faits pour un affichage aléatoire
+      const shuffledFacts = factsData.sort(() => Math.random() - 0.5);
+      
+      setFacts(shuffledFacts);
       setLoading(false);
     }, (error) => {
       console.error('Error in Firestore subscription:', error);
@@ -109,7 +123,8 @@ export const FactProvider: React.FC<{ children: React.ReactNode }> = ({ children
       facts,
       loading,
       getFact,
-      getLocalizedFact
+      getLocalizedFact,
+      getFactsByCategory
     }}>
       {children}
     </FactContext.Provider>

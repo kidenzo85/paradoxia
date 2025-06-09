@@ -8,14 +8,16 @@ import Header from '../components/common/Header';
 import AuthModal from '../components/auth/AuthModal';
 import { ArrowLeft, Share2, Link, ThumbsUp, ThumbsDown, Target } from 'lucide-react';
 import SocialShareModal from '../components/social/SocialShareModal';
+import { useTranslation } from 'react-i18next';
 
 const DetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { getFact, loading, currentLanguage, getLocalizedFact } = useFacts();
+  const { getFact, loading, getLocalizedFact } = useFacts();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const showCommentsParam = searchParams.get('showComments');
+  const { t } = useTranslation();
   
   const [fact, setFact] = useState<any>(null);
   const [showComments, setShowComments] = useState(!!showCommentsParam);
@@ -59,6 +61,8 @@ const DetailPage: React.FC = () => {
     return <Loading />;
   }
 
+  const localizedContent = getLocalizedFact(fact);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-indigo-950">
       {/* Fixed header and navigation */}
@@ -72,28 +76,28 @@ const DetailPage: React.FC = () => {
               <button
                 onClick={handleBack}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-200 hover:text-white hover:bg-gray-800/60 active:bg-gray-800/80 transition-colors"
-                aria-label="Retour"
+                aria-label={t('facts.back')}
               >
                 <ArrowLeft size={22} />
-                <span className="text-sm font-medium">Retour</span>
+                <span className="text-sm font-medium">{t('facts.back')}</span>
               </button>
               
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCopyLink}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-gray-200 hover:text-white hover:bg-gray-800/60 active:bg-gray-800/80 transition-colors"
-                  aria-label="Copier le lien"
+                  aria-label={t('facts.copy')}
                 >
                   <Link size={18} />
-                  <span className="text-sm font-medium">Copier</span>
+                  <span className="text-sm font-medium">{t('facts.copy')}</span>
                 </button>
                 <button
                   onClick={handleShare}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-gray-200 hover:text-white hover:bg-gray-800/60 active:bg-gray-800/80 transition-colors"
-                  aria-label="Partager"
+                  aria-label={t('facts.share')}
                 >
                   <Share2 size={18} />
-                  <span className="text-sm font-medium">Partager</span>
+                  <span className="text-sm font-medium">{t('facts.share')}</span>
                 </button>
               </div>
             </div>
@@ -116,35 +120,32 @@ const DetailPage: React.FC = () => {
             <div className="inline-block bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-3">
               WTF Score: {fact.wtfScore || Math.floor(Math.random() * 5) + 6}
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">{getLocalizedFact(fact).title}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">{localizedContent.title}</h1>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 mb-6">
-              <p className="text-lg text-gray-200 mb-4">{getLocalizedFact(fact).content}</p>
+              <p className="text-lg text-gray-200 mb-4">{localizedContent.content}</p>
               <div className="border-t border-purple-900/30 pt-4 mt-6">
                 <h3 className="font-semibold text-lg mb-2">
-                  {currentLanguage === 'fr' ? 'Source' :
-                   currentLanguage === 'en' ? 'Source' : '来源'}
+                  {t('facts.source')}
                 </h3>
                 <p className="text-gray-300">{fact.source}</p>
               </div>
               <div className="border-t border-purple-900/30 pt-4 mt-6">
                 <h3 className="font-semibold text-lg mb-2">
-                  {currentLanguage === 'fr' ? 'Théorie contestée' :
-                   currentLanguage === 'en' ? 'Contested Theory' : '争议理论'}
+                  {t('facts.contestedTheory')}
                 </h3>
-                <p className="text-gray-300">{getLocalizedFact(fact).contestedTheory}</p>
+                <p className="text-gray-300">{localizedContent.contestedTheory}</p>
               </div>
             </div>
 
             {fact.videoUrl && (
               <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 mb-6">
                 <h3 className="font-semibold text-lg mb-4">
-                  {currentLanguage === 'fr' ? 'Vidéo explicative' :
-                   currentLanguage === 'en' ? 'Explanatory Video' : '说明视频'}
+                  Vidéo explicative
                 </h3>
                 <div className="aspect-w-16 aspect-h-9">
                   <iframe 
@@ -168,10 +169,7 @@ const DetailPage: React.FC = () => {
                 }`}
               >
                 <Target size={18} />
-                <span>
-                  {currentLanguage === 'fr' ? "C'est vrai" :
-                   currentLanguage === 'en' ? "It's true" : '这是真的'}
-                </span>
+                <span>C'est vrai</span>
               </button>
               
               <button 
@@ -183,10 +181,7 @@ const DetailPage: React.FC = () => {
                 }`}
               >
                 <span className="font-bold">WTF</span>
-                <span>
-                  {currentLanguage === 'fr' ? 'Incroyable' :
-                   currentLanguage === 'en' ? 'Incredible' : '难以置信'}
-                </span>
+                <span>Incroyable</span>
               </button>
               
               <button 
@@ -198,28 +193,20 @@ const DetailPage: React.FC = () => {
                 }`}
               >
                 <ThumbsDown size={18} />
-                <span>
-                  {currentLanguage === 'fr' ? "C'est faux" :
-                   currentLanguage === 'en' ? "It's false" : '这是假的'}
-                </span>
+                <span>C'est faux</span>
               </button>
             </div>
 
             <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-lg">
-                  {currentLanguage === 'fr' ? 'Commentaires' :
-                   currentLanguage === 'en' ? 'Comments' : '评论'}
+                  {t('facts.comments')}
                 </h3>
                 <button
                   onClick={() => setShowComments(!showComments)}
                   className="text-sm text-purple-400 hover:text-purple-300"
                 >
-                  {showComments
-                    ? (currentLanguage === 'fr' ? 'Masquer' :
-                       currentLanguage === 'en' ? 'Hide' : '隐藏')
-                    : (currentLanguage === 'fr' ? 'Afficher' :
-                       currentLanguage === 'en' ? 'Show' : '显示')}
+                  {showComments ? 'Masquer' : 'Afficher'}
                 </button>
               </div>
               
@@ -235,8 +222,7 @@ const DetailPage: React.FC = () => {
           <div className="lg:col-span-1">
             <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 mb-6">
               <h3 className="font-semibold text-lg mb-4">
-                {currentLanguage === 'fr' ? 'Faits similaires' :
-                 currentLanguage === 'en' ? 'Similar Facts' : '相似事实'}
+                {t('facts.similarFacts')}
               </h3>
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
@@ -257,13 +243,11 @@ const DetailPage: React.FC = () => {
 
             <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6">
               <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">
-                {currentLanguage === 'fr' ? 'Publicité' :
-                 currentLanguage === 'en' ? 'Advertisement' : '广告'}
+                {t('facts.advertisement')}
               </div>
               <div className="h-[250px] bg-gray-800/50 rounded-lg flex items-center justify-center">
                 <span className="text-gray-400">
-                  {currentLanguage === 'fr' ? 'Espace publicitaire' :
-                   currentLanguage === 'en' ? 'Advertisement Space' : '广告位'}
+                  {t('facts.adSpace')}
                 </span>
               </div>
             </div>

@@ -34,6 +34,12 @@ const SwipeableCards: React.FC<SwipeableCardsProps> = ({
   const controls = useAnimation();
   const constraintsRef = useRef(null);
   
+  // Réinitialiser l'index quand les items changent
+  useEffect(() => {
+    setCurrentIndex(0);
+    controls.set({ x: 0, opacity: 1 });
+  }, [items, controls]);
+  
   // Handle animation after direction changes
   useEffect(() => {
     if (direction) {
@@ -55,10 +61,6 @@ const SwipeableCards: React.FC<SwipeableCardsProps> = ({
   }, [direction, controls, onSwipe]);
   
   // Insert ad cards after every 3-5 regular cards
-  const shouldShowAd = (index: number) => {
-    return (index + 1) % 4 === 0; // Show ad after every 3 regular cards
-  };
-  
   const getItemsWithAds = (): CardItem[] => {
     const itemsWithAds: CardItem[] = [...items];
     let adCount = 0;
@@ -115,8 +117,7 @@ const SwipeableCards: React.FC<SwipeableCardsProps> = ({
         animate={controls}
         className="absolute w-full h-full cursor-grab active:cursor-grabbing"
         whileTap={{ scale: 0.98 }}
-        initial={{ scale: 1, opacity: 1 }} // Changed from { scale: 0.95, opacity: 0 }
-        animate={{ scale: 1, opacity: 1 }} // Added explicit animate
+        initial={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       >
         {isAd(currentItem) ? (
@@ -134,6 +135,15 @@ const SwipeableCards: React.FC<SwipeableCardsProps> = ({
       <div className="absolute bottom-6 left-0 right-0 flex justify-center space-x-2 pointer-events-none">
         <div className={`h-1 w-8 rounded-full transition-colors duration-300 ${direction === 'left' ? 'bg-red-500' : 'bg-gray-400/30'}`}></div>
         <div className={`h-1 w-8 rounded-full transition-colors duration-300 ${direction === 'right' ? 'bg-green-500' : 'bg-gray-400/30'}`}></div>
+      </div>
+      
+      {/* Progress indicator */}
+      <div className="absolute top-4 left-4 right-4 flex justify-center pointer-events-none">
+        <div className="bg-black/50 backdrop-blur-sm rounded-full px-3 py-1">
+          <span className="text-white text-sm">
+            {currentIndex + 1} / {allItems.length}
+          </span>
+        </div>
       </div>
     </div>
   );

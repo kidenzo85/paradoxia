@@ -51,6 +51,7 @@ const FactCreation = (): JSX.Element => {
   const [selectedLanguages, setSelectedLanguages] = useState<Language[]>(['fr', 'en', 'zh', 'ar', 'es']);
   const [autoTranslate, setAutoTranslate] = useState(true);
 
+  // Toutes les 5 langues du projet
   const languages: { code: Language; name: string }[] = [
     { code: 'fr', name: 'Français' },
     { code: 'en', name: 'English' },
@@ -72,7 +73,9 @@ const FactCreation = (): JSX.Element => {
     setResult(null);
     
     try {
-      // Validate input
+      console.log('Starting fact generation process...');
+      
+      // Validation des entrées
       if (numFacts < 1 || numFacts > 50) {
         throw new Error('Le nombre de faits doit être entre 1 et 50');
       }
@@ -81,7 +84,7 @@ const FactCreation = (): JSX.Element => {
         throw new Error('Veuillez sélectionner au moins une catégorie ou fournir un prompt personnalisé');
       }
 
-      // Validate categories against the current list
+      // Validation des catégories
       const invalidCategories = selectedCategories.filter(
         catId => !categories.some(c => c.id === catId)
       );
@@ -94,70 +97,95 @@ const FactCreation = (): JSX.Element => {
       const factsRef = collection(db, 'facts');
       
       for (let i = 0; i < numFacts; i++) {
-        // Generate fact
+        console.log(`Generating fact ${i + 1}/${numFacts}...`);
+        
+        // Génération du fait
         const prompt = customPrompt || `Generate a scientific fact in the following categories: ${selectedCategories.map(id =>
           categories.find(c => c.id === id)?.name || id
         ).join(', ')}`;
+        
+        console.log('Using prompt:', prompt);
         const fact = await generateFact(prompt);
         
         if (!fact) {
-          throw new Error('Failed to generate fact');
+          throw new Error(`Failed to generate fact ${i + 1}`);
         }
         
-        // Find related media
+        console.log('Generated fact:', fact);
+        
+        // Recherche de médias associés
         let media: Media = { imageUrl: null, videoUrl: null };
         try {
+          console.log('Finding related media...');
           const fetchedMedia = await findRelatedMedia(fact);
           media = {
             imageUrl: fetchedMedia.imageUrl || null,
             videoUrl: fetchedMedia.videoUrl || null
           };
+          console.log('Found media:', media);
         } catch (error) {
           console.warn('Failed to find related media:', error);
-          // Continue with text-only fact
         }
         
-        // Generate translations if enabled
+        // Génération des traductions si activée
         let translations: Partial<Record<Language, Translation>> = {};
         if (autoTranslate && selectedLanguages.length > 0) {
-          const translationResults = await Promise.all(
-            selectedLanguages.map(async (lang) => {
-              const translation = await translateFact({
-                title: fact.title,
-                content: fact.content,
-                contestedTheory: fact.contestedTheory
-              }, lang);
-              return [lang, translation];
-            })
-          );
+          console.log('Generating translations for languages:', selectedLanguages);
           
+          const translationPromises = selectedLanguages
+            .filter(lang => lang !== 'fr') // Exclure le français (langue source)
+            .map(async (lang) => {
+              try {
+                console.log(`Translating to ${lang}...`);
+                const translation = await translateFact({
+                  title: fact.title,
+                  content: fact.content,
+                  contestedTheory: fact.contestedTheory
+                }, lang);
+                return [lang, translation] as [Language, Translation | null];
+              } catch (error) {
+                console.error(`Translation failed for ${lang}:`, error);
+                return [lang, null] as [Language, Translation | null];
+              }
+            });
+          
+          const translationResults = await Promise.all(translationPromises);
           translations = Object.fromEntries(
             translationResults.filter(([_, translation]) => translation !== null)
           );
+          
+          console.log('Generated translations:', translations);
         }
 
-        // Save to Firestore
+        // Sauvegarde dans Firestore
         const docData: FactDocument = {
           ...fact,
           translations,
-          imageUrl: media.imageUrl || null,
+          imageUrl: media.imageUrl,
           videoUrl: media.videoUrl,
           status: 'pending' as const,
           createdAt: new Date(),
           createdBy: auth.currentUser?.uid
         };
         
+        console.log('Saving fact to Firestore:', docData);
         await addDoc(factsRef, docData);
         generatedFacts.push(docData);
+        
+        console.log(`Fact ${i + 1}/${numFacts} saved successfully`);
       }
       
       const hasMediaMissing = generatedFacts.some(fact => !fact.imageUrl && !fact.videoUrl);
       const mediaStatus = hasMediaMissing ? ' (certains faits sont sans média)' : '';
+      const translationCount = Object.keys(generatedFacts[0]?.translations || {}).length;
+      const translationStatus = autoTranslate ? ` avec traductions en ${translationCount} langues` : '';
         
       setResult({
         success: true,
-        message: `${numFacts} faits ont été générés avec succès${mediaStatus} et placés dans la file d'attente de modération.`
+        message: `${numFacts} faits ont été générés avec succès${mediaStatus}${translationStatus} et placés dans la file d'attente de modération.`
       });
+      
+      console.log('Fact generation completed successfully');
     } catch (error: any) {
       console.error('Error generating facts:', error);
       let errorMessage = "Une erreur s'est produite lors de la génération des faits.";
@@ -166,10 +194,12 @@ const FactCreation = (): JSX.Element => {
         errorMessage = "Erreur de configuration: Clé API manquante. Veuillez contacter l'administrateur.";
       } else if (error.message.includes('Invalid fact data format') || error.message.includes('Failed to parse API response as JSON') || error.message.includes('Unexpected token')) {
         errorMessage = "Erreur de format: La réponse de l'IA n'est pas dans le format JSON attendu. Veuillez réessayer.";
-      } else if (error.message === 'Failed to generate fact') {
+      } else if (error.message.includes('Failed to generate fact')) {
         errorMessage = "Échec de la génération du fait. Veuillez réessayer avec un prompt différent.";
       } else if (error.message.includes('Le nombre de faits') || error.message.includes('catégorie')) {
         errorMessage = error.message;
+      } else if (error.message.includes('duplicate')) {
+        errorMessage = "Un fait similaire existe déjà. Veuillez réessayer.";
       }
       
       setResult({
@@ -192,7 +222,7 @@ const FactCreation = (): JSX.Element => {
             : 'bg-red-900/30 border border-red-500/50'
         }`}>
           {result.success ? (
-            <CheckCircle className="text-green-400 mt-0.5\" size={18} />
+            <CheckCircle className="text-green-400 mt-0.5" size={18} />
           ) : (
             <AlertCircle className="text-red-400 mt-0.5" size={18} />
           )}
@@ -227,7 +257,7 @@ const FactCreation = (): JSX.Element => {
           
           {/* Language Settings */}
           <div className="bg-gray-800/40 rounded-lg p-6 mb-6">
-            <h3 className="text-lg font-medium text-white mb-4">Langues</h3>
+            <h3 className="text-lg font-medium text-white mb-4">Langues de traduction</h3>
             <div className="flex items-center mb-4">
               <input
                 type="checkbox"
@@ -242,6 +272,9 @@ const FactCreation = (): JSX.Element => {
             </div>
             {autoTranslate && (
               <div className="space-y-2">
+                <p className="text-sm text-gray-400 mb-3">
+                  Sélectionnez les langues pour la traduction automatique:
+                </p>
                 {languages.map((lang) => (
                   <div key={lang.code} className="flex items-center">
                     <input
@@ -258,7 +291,7 @@ const FactCreation = (): JSX.Element => {
                       className="mr-3"
                     />
                     <label htmlFor={`lang-${lang.code}`} className="text-gray-300">
-                      {lang.name}
+                      {lang.name} {lang.code === 'fr' && '(langue source)'}
                     </label>
                   </div>
                 ))}
@@ -340,8 +373,8 @@ Le fait doit être:
         >
           {isLoading ? (
             <>
-              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white\" xmlns="http://www.w3.org/2000/svg\" fill="none\" viewBox="0 0 24 24">
-                <circle className="opacity-25\" cx="12\" cy="12\" r="10\" stroke="currentColor\" strokeWidth="4"></circle>
+              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
               Génération en cours...

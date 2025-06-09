@@ -11,19 +11,20 @@ import SocialShareModal from '../components/social/SocialShareModal';
 import { useTranslation } from 'react-i18next';
 
 const HomePage: React.FC = () => {
-  const { facts, loading } = useFacts();
+  const { facts, loading, getFactsByCategory } = useFacts();
   const [showChallenge, setShowChallenge] = useState(false);
   const [factsSeen, setFactsSeen] = useState(0);
   const [showShareModal, setShowShareModal] = useState(false);
   const [currentFact, setCurrentFact] = useState<Fact | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [displayedFacts, setDisplayedFacts] = useState<Fact[]>([]);
   const carouselRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { t } = useTranslation();
 
   useEffect(() => {
-    // Check if it's the user's first visit
+    // Vérifier si c'est la première visite de l'utilisateur
     const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
     if (!hasSeenOnboarding) {
       setShowOnboarding(true);
@@ -35,6 +36,17 @@ const HomePage: React.FC = () => {
     localStorage.setItem('hasSeenOnboarding', 'true');
   };
 
+  // Mettre à jour les faits affichés quand la catégorie change ou quand les faits sont chargés
+  useEffect(() => {
+    if (!loading && facts.length > 0) {
+      const filteredFacts = getFactsByCategory(selectedCategory);
+      // Mélanger les faits pour un affichage aléatoire
+      const shuffledFacts = [...filteredFacts].sort(() => Math.random() - 0.5);
+      setDisplayedFacts(shuffledFacts);
+      console.log(`Displaying ${shuffledFacts.length} facts for category: ${selectedCategory}`);
+    }
+  }, [facts, selectedCategory, loading, getFactsByCategory]);
+
   useEffect(() => {
     if (factsSeen === 5) {
       setShowChallenge(true);
@@ -43,6 +55,7 @@ const HomePage: React.FC = () => {
 
   const handleSwipe = (direction: string) => {
     setFactsSeen(prev => prev + 1);
+    console.log(`Swiped ${direction}, facts seen: ${factsSeen + 1}`);
   };
 
   const handleCardClick = (item: CardItem) => {
@@ -113,9 +126,12 @@ const HomePage: React.FC = () => {
         {categories.map((category) => (
           <motion.button
             key={category.id}
-            onClick={() => setSelectedCategory(category.id === selectedCategory ? null : category.id)}
+            onClick={() => {
+              console.log(`Selected category: ${category.id}`);
+              setSelectedCategory(category.id);
+            }}
             className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
-              (category.id === selectedCategory || (category.id === 'all' && !selectedCategory))
+              category.id === selectedCategory
                 ? 'bg-purple-900/70 text-white'
                 : 'bg-gray-900/50 text-gray-300 hover:bg-gray-800/70'
             }`}
@@ -141,10 +157,6 @@ const HomePage: React.FC = () => {
     return <Loading />;
   }
 
-  const filteredFacts = selectedCategory && selectedCategory !== 'all'
-    ? facts.filter(fact => fact.status === 'approved' && fact.category.toLowerCase().includes(selectedCategory))
-    : facts.filter(fact => fact.status === 'approved');
-
   return (
     <div className="max-w-md mx-auto pb-20 pt-24 px-4">
       {showOnboarding && (
@@ -164,14 +176,35 @@ const HomePage: React.FC = () => {
             <div className="gcse-search rounded-lg overflow-hidden backdrop-blur-sm bg-gray-900/50"></div>
           </div>
 
+          {/* Indicateur de catégorie sélectionnée */}
+          {selectedCategory !== 'all' && (
+            <div className="mb-4 text-center">
+              <span className="inline-flex items-center gap-2 px-3 py-1 bg-purple-900/50 rounded-full text-purple-300 text-sm">
+                <Sparkles size={16} />
+                {categories.find(c => c.id === selectedCategory)?.name}
+                <span className="text-xs">({displayedFacts.length} faits)</span>
+              </span>
+            </div>
+          )}
+
           <div className="relative h-[70vh]">
-            {filteredFacts.length === 0 ? (
+            {displayedFacts.length === 0 ? (
               <div className="flex items-center justify-center h-full">
-                <p className="text-xl text-gray-400">{t('common.noFactsAvailable')}</p>
+                <div className="text-center">
+                  <p className="text-xl text-gray-400 mb-2">{t('common.noFactsAvailable')}</p>
+                  {selectedCategory !== 'all' && (
+                    <button
+                      onClick={() => setSelectedCategory('all')}
+                      className="text-purple-400 hover:text-purple-300 text-sm"
+                    >
+                      Voir toutes les catégories
+                    </button>
+                  )}
+                </div>
               </div>
             ) : (
               <SwipeableCards
-                items={filteredFacts}
+                items={displayedFacts}
                 onSwipe={handleSwipe}
                 onClick={handleCardClick}
                 renderActions={(fact) => (

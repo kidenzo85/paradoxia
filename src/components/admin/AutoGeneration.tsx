@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Twitch as Switch, AlertCircle, CheckCircle } from 'lucide-react';
+import { Switch, AlertCircle, CheckCircle, Clock, Play, Pause } from 'lucide-react';
 import { 
   getFirestore,
   collection,
@@ -8,7 +8,8 @@ import {
   addDoc,
   updateDoc,
   doc,
-  deleteDoc
+  deleteDoc,
+  serverTimestamp
 } from 'firebase/firestore';
 
 interface AutoGenConfig {
@@ -19,6 +20,8 @@ interface AutoGenConfig {
   enabled: boolean;
   autoApprove: boolean;
   languages: string[];
+  lastGeneration?: Date;
+  nextGeneration?: Date;
 }
 
 const categories = [
@@ -53,6 +56,7 @@ const AutoGeneration: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingConfig, setEditingConfig] = useState<AutoGenConfig | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     const configsRef = collection(db, 'auto_generation_config');
@@ -61,7 +65,13 @@ const AutoGeneration: React.FC = () => {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const configsData: AutoGenConfig[] = [];
       snapshot.forEach((doc) => {
-        configsData.push({ id: doc.id, ...doc.data() } as AutoGenConfig);
+        const data = doc.data();
+        configsData.push({ 
+          id: doc.id, 
+          ...data,
+          lastGeneration: data.lastGeneration?.toDate(),
+          nextGeneration: data.nextGeneration?.toDate()
+        } as AutoGenConfig);
       });
       setConfigs(configsData);
       setLoading(false);
@@ -76,11 +86,18 @@ const AutoGeneration: React.FC = () => {
 
   const handleSaveConfig = async (config: Partial<AutoGenConfig>) => {
     try {
-      if (editingConfig) {
+      if (editingConfig && editingConfig.id) {
         const configRef = doc(db, 'auto_generation_config', editingConfig.id);
-        await updateDoc(configRef, config);
+        await updateDoc(configRef, {
+          ...config,
+          updatedAt: serverTimestamp()
+        });
       } else {
-        await addDoc(collection(db, 'auto_generation_config'), config);
+        await addDoc(collection(db, 'auto_generation_config'), {
+          ...config,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
       }
       setEditingConfig(null);
     } catch (error) {
@@ -90,6 +107,8 @@ const AutoGeneration: React.FC = () => {
   };
 
   const handleDeleteConfig = async (id: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette configuration ?')) return;
+    
     try {
       await deleteDoc(doc(db, 'auto_generation_config', id));
     } catch (error) {
@@ -101,11 +120,51 @@ const AutoGeneration: React.FC = () => {
   const handleToggleEnabled = async (id: string, enabled: boolean) => {
     try {
       const configRef = doc(db, 'auto_generation_config', id);
-      await updateDoc(configRef, { enabled });
+      await updateDoc(configRef, { 
+        enabled,
+        updatedAt: serverTimestamp()
+      });
     } catch (error) {
       console.error('Error toggling config:', error);
       setError('Erreur lors de la modification de la configuration');
     }
+  };
+
+  const handleManualGeneration = async (configId: string) => {
+    setIsGenerating(true);
+    try {
+      // Ici, vous pourriez déclencher manuellement la génération
+      // Pour l'instant, on simule juste une mise à jour
+      const configRef = doc(db, 'auto_generation_config', configId);
+      await updateDoc(configRef, {
+        lastGeneration: serverTimestamp(),
+        nextGeneration: new Date(Date.now() + 60 * 60 * 1000) // 1 heure plus tard
+      });
+      
+      console.log('Manual generation triggered for config:', configId);
+    } catch (error) {
+      console.error('Error triggering manual generation:', error);
+      setError('Erreur lors du déclenchement de la génération manuelle');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const getTimeUntilNext = (nextGeneration?: Date): string => {
+    if (!nextGeneration) return 'Non programmé';
+    
+    const now = new Date();
+    const diff = nextGeneration.getTime() - now.getTime();
+    
+    if (diff <= 0) return 'Maintenant';
+    
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
   };
 
   if (loading) {
@@ -134,6 +193,46 @@ const AutoGeneration: React.FC = () => {
   return (
     <div>
       <h2 className="text-2xl font-bold text-white mb-6">Génération Automatique</h2>
+
+      {/* Status Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="bg-gray-800/50 rounded-lg p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <CheckCircle className="text-green-400" size={20} />
+            <span className="text-sm text-gray-400">Configurations actives</span>
+          </div>
+          <div className="text-2xl font-bold text-white">
+            {configs.filter(c => c.enabled).length}
+          </div>
+        </div>
+        
+        <div className="bg-gray-800/50 rounded-lg p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Clock className="text-blue-400" size={20} />
+            <span className="text-sm text-gray-400">Prochaine génération</span>
+          </div>
+          <div className="text-lg font-semibold text-white">
+            {configs.filter(c => c.enabled).length > 0 
+              ? Math.min(...configs.filter(c => c.enabled && c.nextGeneration).map(c => 
+                  c.nextGeneration!.getTime() - Date.now()
+                )) > 0 
+                ? getTimeUntilNext(new Date(Math.min(...configs.filter(c => c.enabled && c.nextGeneration).map(c => c.nextGeneration!.getTime()))))
+                : 'Maintenant'
+              : 'Aucune'
+            }
+          </div>
+        </div>
+        
+        <div className="bg-gray-800/50 rounded-lg p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <AlertCircle className="text-yellow-400" size={20} />
+            <span className="text-sm text-gray-400">Total configurations</span>
+          </div>
+          <div className="text-2xl font-bold text-white">
+            {configs.length}
+          </div>
+        </div>
+      </div>
 
       {/* Configuration Form */}
       {editingConfig && (
@@ -210,7 +309,7 @@ const AutoGeneration: React.FC = () => {
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Langues de traduction
               </label>
-              <div className="space-y-2">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {languages.map((lang) => (
                   <label key={lang.code} className="flex items-center">
                     <input
@@ -293,7 +392,7 @@ const AutoGeneration: React.FC = () => {
                 maxInterval: 24,
                 enabled: false,
                 autoApprove: false,
-                languages: ['fr', 'en']
+                languages: ['fr', 'en', 'zh', 'ar', 'es']
               })}
               className="px-4 py-2 bg-purple-700 hover:bg-purple-600 text-white rounded-lg"
             >
@@ -311,7 +410,7 @@ const AutoGeneration: React.FC = () => {
                   maxInterval: 24,
                   enabled: false,
                   autoApprove: false,
-                  languages: ['fr', 'en']
+                  languages: ['fr', 'en', 'zh', 'ar', 'es']
                 })}
                 className="px-4 py-2 bg-purple-700 hover:bg-purple-600 text-white rounded-lg"
               >
@@ -332,7 +431,7 @@ const AutoGeneration: React.FC = () => {
                         <span>{category?.emoji}</span>
                         <span>{category?.name}</span>
                       </h3>
-                      <div className="flex items-center mt-2">
+                      <div className="flex items-center mt-2 gap-2">
                         <span className={`text-sm px-2 py-1 rounded-full ${
                           config.enabled
                             ? 'bg-green-900/50 text-green-400'
@@ -341,25 +440,41 @@ const AutoGeneration: React.FC = () => {
                           {config.enabled ? 'Actif' : 'Inactif'}
                         </span>
                         {config.autoApprove && (
-                          <span className="text-sm px-2 py-1 rounded-full bg-purple-900/50 text-purple-400 ml-2">
+                          <span className="text-sm px-2 py-1 rounded-full bg-purple-900/50 text-purple-400">
                             Approbation auto
+                          </span>
+                        )}
+                        {config.enabled && (
+                          <span className="text-sm px-2 py-1 rounded-full bg-blue-900/50 text-blue-400">
+                            Prochaine: {getTimeUntilNext(config.nextGeneration)}
                           </span>
                         )}
                       </div>
                     </div>
-                    <Switch
-                      checked={config.enabled}
-                      onChange={() => handleToggleEnabled(config.id, !config.enabled)}
-                      className={`${
-                        config.enabled ? 'bg-purple-600' : 'bg-gray-700'
-                      } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2`}
-                    >
-                      <span
-                        className={`${
-                          config.enabled ? 'translate-x-6' : 'translate-x-1'
-                        } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
-                      />
-                    </Switch>
+                    <div className="flex items-center gap-2">
+                      {config.enabled && (
+                        <button
+                          onClick={() => handleManualGeneration(config.id)}
+                          disabled={isGenerating}
+                          className="p-2 bg-blue-700 hover:bg-blue-600 text-white rounded-lg disabled:opacity-50"
+                          title="Générer maintenant"
+                        >
+                          <Play size={16} />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleToggleEnabled(config.id, !config.enabled)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                          config.enabled ? 'bg-purple-600' : 'bg-gray-700'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            config.enabled ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 mb-4">
@@ -383,6 +498,12 @@ const AutoGeneration: React.FC = () => {
                       </div>
                     </div>
                   </div>
+
+                  {config.lastGeneration && (
+                    <div className="mb-4 text-sm text-gray-400">
+                      Dernière génération: {config.lastGeneration.toLocaleString()}
+                    </div>
+                  )}
 
                   <div className="flex justify-end gap-2">
                     <button
