@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SwipeHorizontal, MousePointerClick, Share2 } from 'lucide-react';
+import { ArrowLeftRight, MousePointerClick, Share2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface OnboardingGuideProps {
@@ -13,7 +13,7 @@ const OnboardingGuide: React.FC<OnboardingGuideProps> = ({ onComplete }) => {
   
   const steps = [
     {
-      icon: SwipeHorizontal,
+      icon: ArrowLeftRight,
       title: t('onboarding.swipe.title', 'Swipez pour découvrir'),
       description: t('onboarding.swipe.description', 'Faites glisser vers la gauche ou la droite pour explorer de nouveaux faits'),
       animation: {
