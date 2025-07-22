@@ -74,7 +74,8 @@
     "shareText": "Check out this unusual fact",
     "similarFacts": "Similar Facts",
     "advertisement": "Advertisement",
-    "adSpace": "Advertisement Space"
+    "adSpace": "Advertisement Space",
+    "linkCopied": "Link copied!"
   },
   "home": {
     "searchPlaceholder": "Search for unusual facts...",

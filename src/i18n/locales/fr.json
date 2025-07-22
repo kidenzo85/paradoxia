@@ -74,7 +74,8 @@
     "shareText": "Découvrez ce fait insolite",
     "similarFacts": "Faits similaires",
     "advertisement": "Publicité",
-    "adSpace": "Espace publicitaire"
+    "adSpace": "Espace publicitaire",
+    "linkCopied": "Lien copié!"
   },
   "home": {
     "searchPlaceholder": "Rechercher des faits insolites...",

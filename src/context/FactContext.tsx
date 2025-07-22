@@ -62,7 +62,9 @@ export const FactProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    // Par défaut, retourner le contenu français si aucune traduction n'est disponible
+    // Par défaut, retourner le contenu français
+    // Mais si la langue détectée n'est pas le français et qu'il n'y a pas de traduction,
+    // on peut afficher un indicateur
     return {
       title: fact.title,
       content: fact.content,

@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { X, Facebook, Twitter, Instagram, Linkedin, Copy, Mail } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { getCurrentLanguage } from '../../i18n';
 
 interface SocialShareModalProps {
   fact: any;
@@ -8,7 +10,14 @@ interface SocialShareModalProps {
 }
 
 const SocialShareModal: React.FC<SocialShareModalProps> = ({ fact, onClose }) => {
-  const shareUrl = window.location.href;
+  const { t } = useTranslation();
+  const currentLang = getCurrentLanguage();
+  
+  // Include language parameter in share URL
+  const shareUrl = new URL(window.location.href);
+  shareUrl.searchParams.set('lang', currentLang);
+  const shareUrlString = shareUrl.toString();
+  
   const shareTitle = fact.title || 'Un fait insolite sur Savoirs Insolites';
   
   const shareOptions = [
@@ -16,32 +25,32 @@ const SocialShareModal: React.FC<SocialShareModalProps> = ({ fact, onClose }) =>
       name: 'Facebook', 
       icon: <Facebook size={20} />, 
       color: 'bg-[#1877F2]',
-      url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`
+      url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrlString)}`
     },
     { 
       name: 'Twitter', 
       icon: <Twitter size={20} />, 
       color: 'bg-[#1DA1F2]',
-      url: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTitle)}`
+      url: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrlString)}&text=${encodeURIComponent(shareTitle)}`
     },
     { 
       name: 'LinkedIn', 
       icon: <Linkedin size={20} />, 
       color: 'bg-[#0077B5]',
-      url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`
+      url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrlString)}`
     },
     { 
       name: 'Email', 
       icon: <Mail size={20} />, 
       color: 'bg-gray-600',
-      url: `mailto:?subject=${encodeURIComponent(shareTitle)}&body=${encodeURIComponent('Découvre ce fait insolite: ' + shareUrl)}`
+      url: `mailto:?subject=${encodeURIComponent(shareTitle)}&body=${encodeURIComponent(t('facts.shareText', 'Découvre ce fait insolite') + ': ' + shareUrlString)}`
     },
   ];
   
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(shareUrl);
+    navigator.clipboard.writeText(shareUrlString);
     // Show toast - would implement with a toast library in a real app
-    alert('Lien copié!');
+    alert(t('facts.linkCopied', 'Lien copié!'));
   };
   
   const handleShare = (option: typeof shareOptions[0]) => {
@@ -65,11 +74,11 @@ const SocialShareModal: React.FC<SocialShareModalProps> = ({ fact, onClose }) =>
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-white">Partager</h3>
+          <h3 className="text-xl font-bold text-white">{t('facts.shareTitle', 'Partager')}</h3>
           <button 
             onClick={onClose}
             className="text-gray-400 hover:text-white transition-colors"
-            aria-label="Fermer"
+            aria-label={t('common.close', 'Fermer')}
           >
             <X size={20} />
           </button>
@@ -79,7 +88,7 @@ const SocialShareModal: React.FC<SocialShareModalProps> = ({ fact, onClose }) =>
         <div className="mb-6 p-4 bg-black/40 rounded-lg border border-gray-800">
           <h4 className="font-medium text-gray-200 line-clamp-2">{shareTitle}</h4>
           <p className="text-sm text-gray-400 mt-1 line-clamp-2">
-            {fact.preview || 'Découvrez ce fait scientifique insolite et inexplicable...'}
+            {fact.preview || t('facts.shareText', 'Découvrez ce fait scientifique insolite et inexplicable...')}
           </p>
         </div>
         
@@ -103,7 +112,7 @@ const SocialShareModal: React.FC<SocialShareModalProps> = ({ fact, onClose }) =>
           className="w-full flex items-center justify-center gap-2 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors"
         >
           <Copy size={16} />
-          <span>Copier le lien</span>
+          <span>{t('facts.copy', 'Copier le lien')}</span>
         </button>
       </motion.div>
     </motion.div>

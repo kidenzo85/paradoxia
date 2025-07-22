@@ -9,15 +9,20 @@ const LanguageSwitcher: React.FC = () => {
   const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newLang = event.target.value;
     changeLanguage(newLang as keyof typeof languages);
-    // Reload the page to ensure all content is properly translated
-    window.location.reload();
+    
+    // Update URL parameter for sharing
+    const url = new URL(window.location.href);
+    url.searchParams.set('lang', newLang);
+    window.history.replaceState({}, '', url.toString());
   };
 
   return (
     <select
       value={currentLang}
       onChange={handleLanguageChange}
-      className="bg-transparent text-gray-300 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+      className={`bg-transparent text-gray-300 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+        currentLang === 'ar' ? 'text-right' : 'text-left'
+      }`}
       title="Select language"
       style={{ colorScheme: 'dark' }}
     >

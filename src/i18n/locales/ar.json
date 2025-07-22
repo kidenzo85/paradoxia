@@ -47,6 +47,21 @@
     "contestedTheory": "النظرية المتنازع عليها",
     "wtfScore": "درجة الغرابة",
     "comments": "التعليقات",
-    "share": "مشاركة"
+    "share": "مشاركة",
+    "back": "العودة",
+    "copy": "نسخ",
+    "shareTitle": "شارك هذه الحقيقة",
+    "shareText": "اكتشف هذه الحقيقة الغريبة",
+    "similarFacts": "حقائق مشابهة",
+    "advertisement": "إعلان",
+    "adSpace": "مساحة إعلانية",
+    "linkCopied": "تم نسخ الرابط!"
+  },
+  "home": {
+    "searchPlaceholder": "البحث عن حقائق غريبة...",
+    "filterByCategory": "تصفية حسب الفئة",
+    "noResults": "لم يتم العثور على نتائج",
+    "welcomeTitle": "مرحباً بك في Paradoxia",
+    "welcomeDescription": "اكتشف حقائق علمية غريبة وغير قابلة للتفسير"
   }
 }

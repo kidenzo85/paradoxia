@@ -47,6 +47,21 @@
     "contestedTheory": "Teoría controvertida",
     "wtfScore": "Puntuación WTF",
     "comments": "Comentarios",
-    "share": "Compartir"
+    "share": "Compartir",
+    "back": "Volver",
+    "copy": "Copiar",
+    "shareTitle": "Compartir este hecho",
+    "shareText": "Descubre este hecho inusual",
+    "similarFacts": "Hechos similares",
+    "advertisement": "Publicidad",
+    "adSpace": "Espacio publicitario",
+    "linkCopied": "¡Enlace copiado!"
+  },
+  "home": {
+    "searchPlaceholder": "Buscar hechos inusuales...",
+    "filterByCategory": "Filtrar por categoría",
+    "noResults": "No se encontraron resultados",
+    "welcomeTitle": "Bienvenido a Paradoxia",
+    "welcomeDescription": "Descubre hechos científicos inusuales e inexplicables"
   }
 }
