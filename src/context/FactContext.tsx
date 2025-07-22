@@ -48,23 +48,26 @@ export const FactProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { i18n } = useTranslation();
 
   const getLocalizedFact = (fact: Fact) => {
-    const currentLanguage = i18n.language.split('-')[0] as Language;
+    const currentLanguage = i18n.language.split('-')[0].toLowerCase() as Language;
+    
+    console.log('Current language:', currentLanguage);
+    console.log('Available translations:', fact.translations ? Object.keys(fact.translations) : 'none');
     
     // Si le fait a des traductions et que la langue actuelle n'est pas le français
     if (fact.translations && currentLanguage !== 'fr') {
       const translation = fact.translations[currentLanguage];
       if (translation) {
+        console.log('Using translation for:', currentLanguage);
         return {
           title: translation.title,
           content: translation.content,
           contestedTheory: translation.contestedTheory
         };
       }
+      console.log('No translation found for:', currentLanguage, 'falling back to French');
     }
 
-    // Par défaut, retourner le contenu français
-    // Mais si la langue détectée n'est pas le français et qu'il n'y a pas de traduction,
-    // on peut afficher un indicateur
+    console.log('Using French content');
     return {
       title: fact.title,
       content: fact.content,

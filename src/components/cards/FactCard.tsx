@@ -11,8 +11,12 @@ interface FactCardProps {
 
 const FactCard: React.FC<FactCardProps> = ({ fact, onClick, renderActions }) => {
   const { getLocalizedFact } = useFacts();
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const localizedContent = getLocalizedFact(fact);
+  
+  console.log('FactCard - Current language:', i18n.language);
+  console.log('FactCard - Localized content:', localizedContent.title.substring(0, 50) + '...');
+  
   // Animation for the WTF score badge
   const badgeVariants = {
     initial: { scale: 0.8, opacity: 0 },

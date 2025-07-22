@@ -29,6 +29,7 @@ const DetailPage: React.FC = () => {
     if (id) {
       const factData = getFact(id);
       setFact(factData);
+      console.log('DetailPage - Fact loaded:', factData?.title);
     }
   }, [id, getFact]);
   
