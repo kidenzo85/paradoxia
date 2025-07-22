@@ -126,6 +126,7 @@ export const getLanguageName = (lang: string) => {
 // Initialize HTML attributes on load
 i18n.on('languageChanged', (lng) => {
   document.documentElement.lang = lng;
+  console.log('Language changed to:', lng);
   if (lng === 'ar') {
     document.documentElement.dir = 'rtl';
   } else {
